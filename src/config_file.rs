@@ -3,6 +3,7 @@ use std::io::Read;
 use std::fs;
 use std::io;
 use std::io::Write;
+use std::net::IpAddr;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -14,7 +15,7 @@ pub struct Printers {
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
 pub struct PrinterConfig {
-    pub ip: String,
+    pub ip: IpAddr,
 }
 
 // Read the config file and return a Printers struct and create the file if it doesn't exist
@@ -80,26 +81,26 @@ fn test_interaction_with_config_file() {
     assert_eq!(printers.printers, HashMap::new());
     // Test that the config file is appended with a correct printer info
     append_config_file("printer1", PrinterConfig {
-        ip: "1".to_string(),
+        ip: "127.0.0.1".parse().unwrap(),
     }).unwrap();
     let printers = read_config_file().unwrap();
     assert_eq!(printers.printers, HashMap::from_iter(vec![("printer1".to_string(), PrinterConfig {
-        ip: "1".to_string(),
+        ip: "127.0.0.1".parse().unwrap(),
     })]));
     append_config_file("printer2", PrinterConfig {
-        ip: "3".to_string(),
+        ip: "127.0.0.3".parse().unwrap(),
     }).unwrap();
     let printers = read_config_file().unwrap();
     assert_eq!(printers.printers, HashMap::from_iter(vec![("printer1".to_string(), PrinterConfig {
-        ip: "1".to_string(),
+        ip: "127.0.0.1".parse().unwrap(),
     }), ("printer2".to_string(), PrinterConfig {
-        ip: "3".to_string(),
+        ip: "127.0.0.3".parse().unwrap(),
     })]));
     // Test that printer is removed from config file
     remove_printer_from_config("printer1".to_string()).unwrap();
     let printers = read_config_file().unwrap();
     assert_eq!(printers.printers, HashMap::from_iter(vec![("printer2".to_string(), PrinterConfig {
-        ip: "3".to_string(),
+        ip: "127.0.0.3".parse().unwrap(),
     })]));
     // cleanup the file
     fs::remove_file("config.txt").expect("Unable to remove file");
