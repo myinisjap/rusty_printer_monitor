@@ -5,6 +5,10 @@ jobs:
   test_build_rust:
     runs-on: ubuntu-latest
     steps:
+      - name: dir
+        run: |
+          pwd;
+          ls;
       - name: test
         working-directory: api
         run: cargo test
