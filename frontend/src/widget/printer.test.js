@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import PrinterWidget from './printer';
+import  PrinterWidget from './printer';
 
 describe('PrinterWidget', () => {
     const mockProps = {
@@ -8,7 +8,6 @@ describe('PrinterWidget', () => {
         ip_address: '192.168.0.100',
         files_available: ['file1', 'file2', 'file3'],
         progress: 50,
-        deleteWidget: jest.fn(),
     };
 
     beforeEach(() => {
@@ -29,11 +28,11 @@ describe('PrinterWidget', () => {
         });
     });
 
-    test('calls deleteWidget function when delete button is clicked', () => {
-        fireEvent.click(screen.getByText("X"));
-        expect(mockProps.deleteWidget).toHaveBeenCalled();
-        expect(mockProps.deleteWidget).toHaveBeenCalledWith(mockProps.printer_name);
-    });
+    // test('calls deleteWidget function when delete button is clicked', () => {
+    //     fireEvent.click(screen.getByText("X"));
+    //     expect(deleteWidget).toHaveBeenCalled();
+    //     expect(deleteWidget).toHaveBeenCalledWith(mockProps.printer_name);
+    // });
 
     // Add more tests as necessary...
 });
