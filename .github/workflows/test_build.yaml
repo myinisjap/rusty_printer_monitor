@@ -4,19 +4,15 @@ on:
 jobs:
   test_build_rust:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api
     steps:
       - name: test
+        working-directory: api
         run: cargo test
       - name: build
+        working-directory: api
         run: cargo build
   test_build_frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -24,6 +20,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Build frontend react
+        working-directory: frontend
         run: npm run build --if-present
       - name: test frontend
+        working-directory: frontend
         run: npm test
