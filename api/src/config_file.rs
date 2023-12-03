@@ -24,7 +24,7 @@ pub fn read_config_file() -> Result<Printers, io::Error> {
         .create(true)
         .write(true)
         .read(true)
-        .open("config.txt")
+        .open("./config.txt")
         .unwrap();
     let printers: Printers = {
         let mut data = String::new();
@@ -49,7 +49,7 @@ pub fn append_config_file(name: &str, printer: PrinterConfig) -> Result<(), io::
     let mut file = fs::OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open("config.txt")
+        .open("../../build/config.txt")
         .unwrap();
     printers.printers.insert(name.parse().unwrap(), printer);
     let data = serde_json::to_string(&printers).unwrap();
@@ -64,7 +64,7 @@ pub fn remove_printer_from_config(printer: String) -> Result<(), io::Error> {
     let mut file = fs::OpenOptions::new()
         .write(true)
         .truncate(true)
-        .open("config.txt")
+        .open("../../build/config.txt")
         .unwrap();
     printers.printers.remove(&printer);
     let data = serde_json::to_string(&printers).unwrap();
@@ -103,5 +103,5 @@ fn test_interaction_with_config_file() {
         ip: "127.0.0.3".parse().unwrap(),
     })]));
     // cleanup the file
-    fs::remove_file("config.txt").expect("Unable to remove file");
+    fs::remove_file("../../build/config.txt").expect("Unable to remove file");
 }

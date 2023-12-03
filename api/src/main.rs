@@ -9,6 +9,8 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use salvo::prelude::*;
 use salvo::websocket::{Message, WebSocket, WebSocketUpgrade};
+use salvo::serve_static::StaticDir;
+use serde::{Deserialize, Serialize};
 
 type Users = RwLock<HashMap<usize, mpsc::UnboundedSender<Result<Message, salvo::Error>>>>;
 
@@ -22,14 +24,21 @@ mod config_file;
 async fn main() {
     tracing_subscriber::fmt().init();
     let router = Router::new()
-        .goal(index)
         .push(Router::with_path("ws")
-            .goal(user_connected));
+        .goal(user_connected))
+        .push(Router::with_path("<**path>").get(
+            StaticDir::new([
+                "./",
+            ])
+                .defaults("index.html")
+                .auto_list(true),
+        ));
+
 
     let acceptor = TcpListener::new("0.0.0.0:8000").bind().await;
 
     // spawn the task for getting the printer statuses on a cron and then broadcasting it
-    tokio::spawn(get_all_printer_statuses());
+    tokio::spawn(get_all_printer_json());
 
     Server::new(acceptor).serve(router).await;
 }
@@ -79,16 +88,41 @@ async fn handle_socket(ws: WebSocket) {
     tokio::task::spawn(fut);
 }
 
-async fn get_all_printer_statuses() {
+#[derive(Serialize, Deserialize)]
+struct PrintersStatusJson {
+    printers: Vec<StatusJson>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct StatusJson {
+    printer_name: String,
+    ip_address: String,
+    files_available: Vec<String>,
+    progress: String,
+}
+
+async fn get_all_printer_json() {
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {
         interval.tick().await;
+        let mut printers_json = PrintersStatusJson { printers: Vec::new() };
         for printer in config_file::read_config_file().unwrap().printers {
             let (name, config) = printer;
             tracing::info!("Retrieving status for {} at {}", name, config.ip);
-            let status = printer_interface::get_print_status(config.ip);
-            send_message_to_all(Message::text(status)).await;
+            let progress: String = printer_interface::get_print_status(config.ip);
+            let files_available: Vec<String> = printer_interface::get_printer_files(config.ip);
+            printers_json.printers.push(
+                StatusJson {
+                    printer_name: name,
+                    ip_address: config.ip.to_string(),
+                    files_available,
+                    progress,
+                }
+            )
         }
+        let status = serde_json::to_string(&printers_json.printers).unwrap();
+        tracing::info!(status);
+        send_message_to_all(Message::text(status)).await;
     }
 }
 

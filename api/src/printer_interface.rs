@@ -66,6 +66,10 @@ pub fn get_printer_files(ip_addr: IpAddr) -> Vec<String> {
         output.truncate(output.len().saturating_sub(2));
         // remove first element that is ["Begin file list"]
         output.remove(0);
+        // strip off the size of the file as we aren't using it
+        for i in output.iter_mut() {
+            *i = i.split(" ").collect::<Vec<&str>>()[0].to_string();
+        }
         return output;
     }
     Vec::new()

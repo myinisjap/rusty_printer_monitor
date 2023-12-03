@@ -1,2 +1,4 @@
-/target
-/config.txt
+/api/target
+/api/config.txt
+/frontend/build/
+/frontend/node_modules/
