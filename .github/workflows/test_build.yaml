@@ -5,10 +5,8 @@ jobs:
   test_build_rust:
     runs-on: ubuntu-latest
     steps:
-      - name: dir
-        run: |
-          pwd;
-          ls;
+      - name: Checkout Repo
+        uses: actions/checkout@v3
       - name: test
         working-directory: api
         run: cargo test
@@ -18,6 +16,8 @@ jobs:
   test_build_frontend:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
