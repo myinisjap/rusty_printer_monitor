@@ -1,7 +1,7 @@
 import './App.css';
 import PrinterWidget from "./widget/printer";
-import { useEffect, useRef, useState } from "react";
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { useEffect, useState } from "react";
+import useWebSocket from 'react-use-websocket';
 
 
 export const App = () => {
@@ -39,7 +39,7 @@ export const App = () => {
       flexWrap: "wrap",
     }}>
       {printers.map((i) =>
-        < PrinterWidget key={i.printer_name} {...i} deleteWidget={deleteWidget} />
+        < PrinterWidget key={i.printer_name} {...i} />
       )}
     </div>
   );

@@ -9,6 +9,9 @@ function startPrint (file) {
   console.log(file)
 }
 
+function deleteWidget (name) {
+    console.log("Deleting widget" + name)
+}
 
 function PrinterWidget(props) {
   const [fileDropDown, setFileDropDown] = useState()
@@ -30,7 +33,7 @@ function PrinterWidget(props) {
       background: "cornsilk"
     }}>
       <h1 style={{display: "inline"}} title={props.printer_name}>{props.printer_name}</h1>
-      <button style={{float: "right"}} onClick={() => props.deleteWidget(props.printer_name)}>X</button>
+      <button style={{float: "right"}} onClick={() => deleteWidget(props.printer_name)}>X</button>
         <p><strong>IP Address:</strong> {props.ip_address}</p>
         <div>
           <button style={{margin: "0 .5em"}} onClick={() => sendMessage("pause")}>Pause Printer</button>
