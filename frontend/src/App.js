@@ -16,7 +16,9 @@ export const App = () => {
       // "progress": 50},
     ]
   );
+// eslint-disable-next-line
   const WS_URL = ((window.location.protocol == "https:" && "wss://") || "ws://") + window.location.host + "/ws";
+// eslint-disable-next-line
   const { sendJsonMessage, lastJsonMessage } = useWebSocket(
     WS_URL,
     {
