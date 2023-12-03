@@ -1,10 +1,10 @@
 name: Create release and upload artifact
 
 on:
-  - workflow_dispatch
-  - push:
-      branches:
-        - master
+  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 env:
   CARGO_TERM_COLOR: always
