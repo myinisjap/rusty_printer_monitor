@@ -1,0 +1,59 @@
+name: Create release and upload artifact
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 18.x ]
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Build Rust
+        working-directory: api
+        run: cargo build --release
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Install frontend react
+        working-directory: frontend
+        run: npm ci
+      - name: Build frontend react
+        working-directory: frontend
+        run: npm run build --if-present
+
+      - name: Copy artifacts to folder and compress
+        run: |
+          mkdir -p rusty_printer_monitor
+          cp api/target/release/rusty_printer_monitor rusty_printer_monitor/
+          cp -r frontend/build/* rusty_printer_monitor/
+          tar -zcvf rusty_printer_monitor.tar.gz rusty_printer_monitor/
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          artifacts: "rusty_printer_monitor.tar.gz"
