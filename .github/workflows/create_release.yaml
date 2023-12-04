@@ -53,12 +53,12 @@ jobs:
             name: rusty-printer-monitor-Windows-x86_64.tar.gz
             command: both
   
-          - release_for: macOS-x86_64
-            os: macOS-latest
-            target: x86_64-apple-darwin
-            bin: rusty-printer-monitor
-            name: rusty-printer-monitor-Darwin-x86_64.tar.gz
-            command: both
+          # - release_for: macOS-x86_64
+          #   os: macOS-latest
+          #   target: x86_64-apple-darwin
+          #   bin: rusty-printer-monitor
+          #   name: rusty-printer-monitor-Darwin-x86_64.tar.gz
+          #   command: both
 
     steps:
       - name: Checkout Repo
