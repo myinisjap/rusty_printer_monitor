@@ -88,7 +88,7 @@ jobs:
 
       - name: Copy artifacts to folder and compress
         run: |
-          cp api/target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} rusty_printer_monitor/
+          cp api/target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} rusty_printer_monitor/${{ matrix.platform.bin }}
           cp -r frontend/build/* rusty_printer_monitor/
           tar -zcvf ${{ matrix.platform.name }} rusty_printer_monitor/
 
