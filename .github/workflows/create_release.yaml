@@ -90,14 +90,10 @@ jobs:
         run: |
           mkdir -p rusty_printer_monitor
           echo "**************"
-          ls -al api/target/release
+          ls -al api/target/${{ matrix.platform.target }}
           echo "**************"
-          ls -al api/target
+          ls -al api/target/${{ matrix.platform.target }}/release
           echo "**************"
-          ls -al api
-          echo "**************"
-          ls -al
-          echo "*******************"
           cp api/target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} rusty_printer_monitor/
           cp -r frontend/build/* rusty_printer_monitor/
           tar -zcvf ${{ matrix.platform.name }} rusty_printer_monitor/
