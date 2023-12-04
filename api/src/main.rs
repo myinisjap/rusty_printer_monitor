@@ -80,6 +80,7 @@ async fn handle_socket(ws: WebSocket) {
                     break;
                 }
             };
+            tracing::info!("{}", msg.to_str().unwrap())
             // send_message(my_id, msg).await;
         }
 
@@ -138,56 +139,3 @@ async fn user_disconnected(user_id: usize) {
     tracing::info!("User has disconnected: {user_id}");
     ONLINE_USERS.write().await.remove(&user_id);
 }
-
-
-#[handler]
-async fn index(res: &mut Response) {
-    res.render(Text::Html(INDEX_HTML));
-}
-
-static INDEX_HTML: &str = r#"<!DOCTYPE html>
-<html>
-    <head>
-        <title>WS Chat</title>
-    </head>
-    <body>
-        <h1>WS Chat</h1>
-        <div id="chat">
-            <p><em>Connecting...</em></p>
-        </div>
-        <input type="text" id="text" />
-        <button type="button" id="submit">Submit</button>
-        <script>
-            const chat = document.getElementById('chat');
-            const msg = document.getElementById('msg');
-            const submit = document.getElementById('submit');
-            const ws = new WebSocket(`ws://${location.host}/ws`);
-
-            ws.onopen = function() {
-                chat.innerHTML = '<p><em>Connected!</em></p>';
-            };
-
-            ws.onmessage = function(msg) {
-                showMessage(msg.data);
-            };
-
-            ws.onclose = function() {
-                chat.getElementsByTagName('em')[0].innerText = 'Disconnected!';
-            };
-
-            submit.onclick = function() {
-                const msg = text.value;
-                ws.send(msg);
-                text.value = '';
-
-                showMessage('<You>: ' + msg);
-            };
-            function showMessage(data) {
-                const line = document.createElement('p');
-                line.innerText = data;
-                chat.appendChild(line);
-            }
-        </script>
-    </body>
-</html>
-"#;

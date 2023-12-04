@@ -75,6 +75,7 @@ pub fn get_printer_files(ip_addr: IpAddr) -> Vec<String> {
     Vec::new()
 }
 
+#[allow(dead_code)]
 pub fn print_action(ip_addr: IpAddr, action: String, file_name: Option<String>) -> String {
     if action == "start" && file_name.is_none() {
         return "File_name was not passed".to_string();

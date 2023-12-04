@@ -44,6 +44,7 @@ pub fn read_config_file() -> Result<Printers, io::Error> {
 }
 
 // Append the config file with a new printer
+#[allow(dead_code)]
 pub fn append_config_file(name: &str, printer: PrinterConfig) -> Result<(), io::Error> {
     let mut printers: Printers = read_config_file().unwrap();
     let mut file = fs::OpenOptions::new()
@@ -59,6 +60,7 @@ pub fn append_config_file(name: &str, printer: PrinterConfig) -> Result<(), io::
 }
 
 // Remove a printer from the config file
+#[allow(dead_code)]
 pub fn remove_printer_from_config(printer: String) -> Result<(), io::Error> {
     let mut printers: Printers = read_config_file().unwrap();
     let mut file = fs::OpenOptions::new()
