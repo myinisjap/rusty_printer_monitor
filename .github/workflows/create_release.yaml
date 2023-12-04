@@ -69,7 +69,7 @@ jobs:
         with:
           command: "build"
           target: ${{ matrix.platform.target }}
-          args: "--locked --release"
+          args: "--release"
           working-directory: api
 
       - name: Use Node.js 18.x
