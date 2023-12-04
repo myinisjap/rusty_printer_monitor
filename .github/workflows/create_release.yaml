@@ -38,21 +38,21 @@ jobs:
             - release_for: Linux-x86_64
               os: ubuntu-latest
               target: x86_64-unknown-linux-gnu
-              bin: rusty-printer-monitor
+              bin: rusty_printer_monitor
               name: rusty-printer-monitor-Linux-x86_64.tar.gz
               command: build
     
             - release_for: Windows-x86_64
               os: windows-latest
               target: x86_64-pc-windows-msvc
-              bin: rusty-printer-monitor.exe
+              bin: rusty_printer_monitor.exe
               name: rusty-printer-monitor-Windows-x86_64.tar.gz
               command: build
     
             - release_for: macOS-x86_64
               os: macOS-latest
               target: x86_64-apple-darwin
-              bin: rusty-printer-monitor
+              bin: rusty_printer_monitor
               name: rusty-printer-monitor-Darwin-x86_64.tar.gz
               command: build
             
@@ -88,12 +88,6 @@ jobs:
 
       - name: Copy artifacts to folder and compress
         run: |
-          mkdir -p rusty_printer_monitor
-          echo "**************"
-          ls -al api/target/${{ matrix.platform.target }}
-          echo "**************"
-          ls -al api/target/${{ matrix.platform.target }}/release
-          echo "**************"
           cp api/target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} rusty_printer_monitor/
           cp -r frontend/build/* rusty_printer_monitor/
           tar -zcvf ${{ matrix.platform.name }} rusty_printer_monitor/
