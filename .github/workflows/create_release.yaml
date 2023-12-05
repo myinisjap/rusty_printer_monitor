@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     outputs:
-      upload_url: ${{ steps.release.outputs.upload_url }}
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
     steps:
       - name: Bump version and push tag
         id: tag_version
@@ -24,14 +24,16 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create a GitHub release
-        id: release
+        id: create-release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
+          prerelease: ${{ github.ref != 'refs/heads/main' &&  true" || "false" }}
 
   upload_assets:
+    needs: release
     strategy:
         matrix:
           platform:
