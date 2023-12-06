@@ -1,10 +1,10 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::Read;
 use std::fs;
 use std::io;
+use std::io::Read;
 use std::io::Write;
 use std::net::IpAddr;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Printers {
@@ -12,8 +12,7 @@ pub struct Printers {
     pub printers: HashMap<String, PrinterConfig>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct PrinterConfig {
     pub ip: IpAddr,
 }
@@ -28,7 +27,9 @@ pub fn read_config_file() -> Result<Printers, io::Error> {
         .unwrap();
     let printers: Printers = {
         let mut data = String::new();
-        let _ = file.read_to_string(&mut data).expect("Config: error reading file");
+        let _ = file
+            .read_to_string(&mut data)
+            .expect("Config: error reading file");
         if data.is_empty() {
             let printers = Printers {
                 printers: HashMap::new(),
@@ -44,8 +45,7 @@ pub fn read_config_file() -> Result<Printers, io::Error> {
 }
 
 // Append the config file with a new printer
-#[allow(dead_code)]
-pub fn append_config_file(name: &str, printer: PrinterConfig) -> Result<(), io::Error> {
+pub fn append_config_file(name: String, printer: PrinterConfig) -> Result<(), io::Error> {
     let mut printers: Printers = read_config_file().unwrap();
     let mut file = fs::OpenOptions::new()
         .write(true)
@@ -60,7 +60,6 @@ pub fn append_config_file(name: &str, printer: PrinterConfig) -> Result<(), io::
 }
 
 // Remove a printer from the config file
-#[allow(dead_code)]
 pub fn remove_printer_from_config(printer: String) -> Result<(), io::Error> {
     let mut printers: Printers = read_config_file().unwrap();
     let mut file = fs::OpenOptions::new()
@@ -82,28 +81,60 @@ fn test_interaction_with_config_file() {
     // Test that the config file is empty
     assert_eq!(printers.printers, HashMap::new());
     // Test that the config file is appended with a correct printer info
-    append_config_file("printer1", PrinterConfig {
-        ip: "127.0.0.1".parse().unwrap(),
-    }).unwrap();
+    append_config_file(
+        "printer1".to_string(),
+        PrinterConfig {
+            ip: "127.0.0.1".parse().unwrap(),
+        },
+    )
+    .unwrap();
     let printers = read_config_file().unwrap();
-    assert_eq!(printers.printers, HashMap::from_iter(vec![("printer1".to_string(), PrinterConfig {
-        ip: "127.0.0.1".parse().unwrap(),
-    })]));
-    append_config_file("printer2", PrinterConfig {
-        ip: "127.0.0.3".parse().unwrap(),
-    }).unwrap();
+    assert_eq!(
+        printers.printers,
+        HashMap::from_iter(vec![(
+            "printer1".to_string(),
+            PrinterConfig {
+                ip: "127.0.0.1".parse().unwrap(),
+            }
+        )])
+    );
+    append_config_file(
+        "printer2".to_string(),
+        PrinterConfig {
+            ip: "127.0.0.3".parse().unwrap(),
+        },
+    )
+    .unwrap();
     let printers = read_config_file().unwrap();
-    assert_eq!(printers.printers, HashMap::from_iter(vec![("printer1".to_string(), PrinterConfig {
-        ip: "127.0.0.1".parse().unwrap(),
-    }), ("printer2".to_string(), PrinterConfig {
-        ip: "127.0.0.3".parse().unwrap(),
-    })]));
+    assert_eq!(
+        printers.printers,
+        HashMap::from_iter(vec![
+            (
+                "printer1".to_string(),
+                PrinterConfig {
+                    ip: "127.0.0.1".parse().unwrap(),
+                }
+            ),
+            (
+                "printer2".to_string(),
+                PrinterConfig {
+                    ip: "127.0.0.3".parse().unwrap(),
+                }
+            )
+        ])
+    );
     // Test that printer is removed from config file
     remove_printer_from_config("printer1".to_string()).unwrap();
     let printers = read_config_file().unwrap();
-    assert_eq!(printers.printers, HashMap::from_iter(vec![("printer2".to_string(), PrinterConfig {
-        ip: "127.0.0.3".parse().unwrap(),
-    })]));
+    assert_eq!(
+        printers.printers,
+        HashMap::from_iter(vec![(
+            "printer2".to_string(),
+            PrinterConfig {
+                ip: "127.0.0.3".parse().unwrap(),
+            }
+        )])
+    );
     // cleanup the file
     fs::remove_file("./config.txt").expect("Unable to remove file");
 }
