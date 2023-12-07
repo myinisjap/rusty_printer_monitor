@@ -32,3 +32,17 @@
     transform: rotate(360deg);
   }
 }
+
+.printer_widget {
+  border: solid;
+  border-radius: 1em;
+  width: 20em;
+  min-width: 20em;
+  min-height: 26em;
+  margin: .5em;
+  padding: .5em;
+  resize: both;
+  overflow: auto;
+  position: relative;
+  background: cornsilk
+}

@@ -3,7 +3,6 @@ use std::net::{IpAddr, UdpSocket};
 use std::str;
 use std::time::Duration;
 
-
 // Gcode | parameters      | return value                             | description
 // ----- | --------------- | ---------------------------------------- | -----------
 // M20:  |                 | ["Begin file list","*", "End file list"] | get file list
@@ -16,8 +15,12 @@ use std::time::Duration;
 pub fn send_gcode(gcode: String, ip_addr: IpAddr) -> Vec<String> {
     let mut output = Vec::new();
     let socket = UdpSocket::bind("0.0.0.0:0").expect("couldn't bind to address");
-    socket.set_read_timeout(Some(Duration::new(2, 0))).expect("set_read_timeout call failed");
-    socket.connect(ip_addr.to_string() + ":3000").expect("connect function failed");
+    socket
+        .set_read_timeout(Some(Duration::new(2, 0)))
+        .expect("set_read_timeout call failed");
+    socket
+        .connect(ip_addr.to_string() + ":3000")
+        .expect("connect function failed");
     match socket.send(gcode.as_bytes()) {
         Ok(_received) => {
             let mut buf = [0; 4096];
@@ -32,14 +35,14 @@ pub fn send_gcode(gcode: String, ip_addr: IpAddr) -> Vec<String> {
                         }
                     }
                     Err(e) => {
-                        println!("recv function failed: {e:?}");
+                        tracing::warn!("recv function failed: {e:?}");
                         break;
                     }
                 }
             }
         }
         Err(e) => {
-            println!("recv function failed: {e:?}");
+            tracing::warn!("recv function failed: {e:?}");
         }
     }
     drop(socket);
@@ -75,28 +78,36 @@ pub fn get_printer_files(ip_addr: IpAddr) -> Vec<String> {
     Vec::new()
 }
 
-#[allow(dead_code)]
-pub fn print_action(ip_addr: IpAddr, action: String, file_name: Option<String>) -> String {
+pub fn print_action(
+    ip_addr: IpAddr,
+    action: String,
+    file_name: Option<String>,
+) -> Result<String, String> {
+    tracing::info!("print_action called");
     if action == "start" && file_name.is_none() {
-        return "File_name was not passed".to_string();
+        return Err("file_name was not passed".to_string());
     }
-    let command = format!("M6030 \"{:?}\"", file_name.unwrap_or("".to_string()));
+    let command = format!("M6030 {:?}", file_name.unwrap_or("".to_string()));
     let gcode_map = HashMap::from([
         ("resume", "M24"),
         ("pause", "M25"),
         ("stop", "M33"),
-        ("start", &command)
+        ("start", &command),
     ]);
     match gcode_map.get(&*action) {
         Some(gcode) => {
+            tracing::info!("Calling {ip_addr} with {gcode}");
             let output = send_gcode(gcode.to_string(), ip_addr);
             if !output.is_empty() {
-                return output[0].clone();
+                tracing::info!("{}", output[0].clone());
+                return Ok(output[0].clone());
             }
         }
         _ => {
-            return format!("Action of {action} not supported").to_string();
+            tracing::warn!("Action of {action} not supported");
+            return Ok(format!("Action of {action} not supported").to_string());
         }
     }
-    format!("Failed to {action} with the printer")
+    tracing::warn!("Failed to {action} printer at {ip_addr}");
+    Err(format!("Failed to {action} printer at {ip_addr}"))
 }

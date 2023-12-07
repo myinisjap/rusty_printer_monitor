@@ -1,4 +1,4 @@
-# 3D Printer Web Interface
+# Rusty Printer Monitor
 
 ## Description
 
@@ -12,6 +12,12 @@ It supports multiple printers at once with each getting their own widget.
   - Start the printer with selected file
   - Pause the printer
   - Stop the printer
+
+## To Use
+- Download the latest version from [Releases](https://github.com/myinisjap/rusty_printer_monitor/releases)
+which is correct for the OS/CPU you are using.
+- Extract the directory from the archive
+- launch rusty_printer_monitor
 
 ## Tech Stack
 
