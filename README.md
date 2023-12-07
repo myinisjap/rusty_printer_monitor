@@ -1,3 +1,5 @@
+[![Create release and upload artifact](https://github.com/myinisjap/rusty_printer_monitor/actions/workflows/create_release.yaml/badge.svg)](https://github.com/myinisjap/rusty_printer_monitor/actions/workflows/create_release.yaml)
+
 # Rusty Printer Monitor
 
 ## Description
