@@ -14,16 +14,20 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use crate::page_interface;
 
 static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
+
 type Users = RwLock<HashMap<usize, mpsc::UnboundedSender<Result<Message, salvo::Error>>>>;
+
 pub static ONLINE_USERS: Lazy<Users> = Lazy::new(Users::default);
 
 pub async fn send_message_to_user(user_id: usize, msg: Message) {
-    for (&uid, tx) in ONLINE_USERS.read().await.iter() {
-        if user_id == uid {
+    tracing::info!("Sending message to user {user_id}");
+    match ONLINE_USERS.read().await.get(&user_id) {
+        Some(tx) => {
             if let Err(_disconnected) = tx.send(Ok(msg.clone())) {
                 // ignore disconnect
             }
         }
+        _ => tracing::warn!("Did not find the user {user_id} in ONLINE_USERS"),
     }
 }
 
@@ -42,6 +46,7 @@ pub async fn user_connected(req: &mut Request, res: &mut Response) -> Result<(),
         .upgrade(req, res, handle_socket)
         .await
 }
+
 pub async fn user_disconnected(user_id: usize) {
     tracing::info!("User has disconnected: {user_id}");
     ONLINE_USERS.write().await.remove(&user_id);
@@ -68,19 +73,21 @@ async fn handle_socket(ws: WebSocket) {
     tokio::task::spawn(fut);
     let fut = async move {
         ONLINE_USERS.write().await.insert(user_id, tx);
-        let _ = page_interface::update_user_page(user_id);
-        // TODO implement actions based on messages from client
+        let _ = page_interface::update_user_page(user_id).await;
         while let Some(result) = user_ws_rx.next().await {
             match result {
-                Ok(msg) => {
-                    tracing::info!("{}", msg.to_str().unwrap());
-                    page_interface::issue_printer_command(msg.to_str().unwrap()).await;
-                }
+                Ok(msg) => match msg.to_str() {
+                    Ok(m) => {
+                        tracing::debug!("{m}");
+                        page_interface::issue_printer_command(m).await;
+                    }
+                    Err(msg_e) => tracing::warn!("{msg_e}"),
+                },
                 Err(e) => {
                     eprintln!("websocket error(uid={user_id}): {e}");
                     break;
                 }
-            };
+            }
         }
         user_disconnected(user_id).await;
     };

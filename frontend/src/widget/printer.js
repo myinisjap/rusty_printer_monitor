@@ -10,22 +10,10 @@ function PrinterWidget(props) {
         setFileDropDown(e.target.value);
     }
     return (
-        <div style={{
-            border: "solid",
-            borderRadius: "1em",
-            width: "20em",
-            minWidth: "20em",
-            minHeight: "26em",
-            margin: ".5em",
-            padding: ".5em",
-            resize: "both",
-            overflow: "auto",
-            position: "relative",
-            background: "cornsilk"
-        }}>
+        <div className={"printer_widget"}>
             <h1 style={{display: "inline"}} title={props.printer_name}>{props.printer_name}</h1>
             <button style={{float: "right"}} onClick={() =>
-                sendJsonMessage({action: "delete", name: props.printer_name})}>X
+                sendJsonMessage({action: "remove", name: props.printer_name})}>X
             </button>
             <p><strong>IP Address:</strong> {props.ip_address}</p>
             <div>

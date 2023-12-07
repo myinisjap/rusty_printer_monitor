@@ -5,6 +5,7 @@ use std::net::IpAddr;
 use std::time::Duration;
 
 pub async fn update_user_page(user_id: usize) {
+    tracing::info!("Attempting to send user {user_id} initial printer details");
     let _ = socket::send_message_to_user(user_id, Message::text(get_all_printer_json().await));
 }
 
@@ -66,38 +67,38 @@ struct Command {
 pub async fn issue_printer_command(command: &str) {
     tracing::info!("issue_printer_command called with {}", command);
     match serde_json::from_str::<Command>(&command) {
-        Ok(decoded) => {
-            match decoded.action.as_str() {
-                "add" => {
-                    match config_file::append_config_file(
-                        decoded.name.unwrap(),
-                        config_file::PrinterConfig {
-                            ip: decoded.ip_address.unwrap(),
-                        },
-                    ) {
-                        Ok(_) => send_refreshed_printers().await,
-                        Err(_) => tracing::warn!("Failed to add printer"),
-                    }
+        Ok(decoded) => match decoded.action.as_str() {
+            "add" => {
+                match config_file::append_config_file(
+                    decoded.name.unwrap(),
+                    config_file::PrinterConfig {
+                        ip: decoded.ip_address.unwrap(),
+                    },
+                ) {
+                    Ok(_) => send_refreshed_printers().await,
+                    Err(_) => tracing::warn!("Failed to add printer"),
                 }
-                "remove" => {
-                    match config_file::remove_printer_from_config(decoded.name.unwrap()) {
-                        Ok(_) => send_refreshed_printers().await,
-                        Err(_) => tracing::warn!("Failed to add printer"),
-                    }
-                }
-                "resume" | "pause" | "stop" | "start" => {
-                    match printer_interface::print_action(
-                        decoded.ip_address.unwrap(),
-                        decoded.action,
-                        decoded.file,
-                    ) {
-                        Ok(_) => send_refreshed_printers().await,
-                        Err(action) => tracing::warn!("Failed to {} printer {}", action, decoded.ip_address.unwrap()),
-                    }
-                }
-                _ => tracing::warn!("Action of {} currently not supported.", decoded.action),
             }
-        }
+            "remove" => match config_file::remove_printer_from_config(decoded.name.unwrap()) {
+                Ok(_) => send_refreshed_printers().await,
+                Err(_) => tracing::warn!("Failed to add printer"),
+            },
+            "resume" | "pause" | "stop" | "start" => {
+                match printer_interface::print_action(
+                    decoded.ip_address.unwrap(),
+                    decoded.action,
+                    decoded.file,
+                ) {
+                    Ok(_) => send_refreshed_printers().await,
+                    Err(action) => tracing::warn!(
+                        "Failed to {} printer {}",
+                        action,
+                        decoded.ip_address.unwrap()
+                    ),
+                }
+            }
+            _ => tracing::warn!("Action of {} currently not supported.", decoded.action),
+        },
         Err(_) => {
             tracing::warn!("Unable to deserialize websocket message {:?}", &command);
         }
