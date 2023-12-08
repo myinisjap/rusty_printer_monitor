@@ -19,7 +19,7 @@ It supports multiple printers at once with each getting their own widget.
 - Download the latest version from [Releases](https://github.com/myinisjap/rusty_printer_monitor/releases)
 which is correct for the OS/CPU you are using.
 - Extract the directory from the archive
-- launch rusty_printer_monitor
+- launch rusty_printer_monitor executable
 
 ## Tech Stack
 
