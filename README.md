@@ -1,3 +1,4 @@
+[![.github/workflows/test_build.yaml](https://github.com/myinisjap/rusty_printer_monitor/actions/workflows/test_build.yaml/badge.svg)](https://github.com/myinisjap/rusty_printer_monitor/actions/workflows/test_build.yaml)
 [![Create release and upload artifact](https://github.com/myinisjap/rusty_printer_monitor/actions/workflows/create_release.yaml/badge.svg)](https://github.com/myinisjap/rusty_printer_monitor/actions/workflows/create_release.yaml)
 
 # Rusty Printer Monitor
@@ -20,6 +21,8 @@ It supports multiple printers at once with each getting their own widget.
 which is correct for the OS/CPU you are using.
 - Extract the directory from the archive
 - launch rusty_printer_monitor executable
+  - on windows you will need to allow it to run do to "Publisher: Unknown publisher"
+- browse to {127.0.0.1 | ipadress of host | hostname }:8000 
 
 ## Tech Stack
 
