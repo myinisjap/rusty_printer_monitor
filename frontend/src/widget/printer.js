@@ -9,11 +9,7 @@ function PrinterWidget(props) {
     const handleChange = (e) => {
         setFileDropDown(e.target.value);
     }
-    if (isWindows) {
-        let fileWindowSubtract = "19em";
-    } else {
-        let fileWindowSubtract = "11em"
-    }
+    let fileWindowSubtract = isWindows ? "19em" : "11em";
 
     return (
         <div className={"printer_widget"}>
