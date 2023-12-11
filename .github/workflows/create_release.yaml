@@ -61,6 +61,13 @@ jobs:
               name: rusty-printer-monitor-Darwin-x86_64.tar.gz
               command: build
 
+            - release_for: raspberrypi
+              os: ubuntu-20.04
+              target: arm-unknown-linux-gnueabihf
+              bin: rusty_printer_monitor
+              name: rusty-printer-monitor-Linux-x86_64.tar.gz
+              command: build 
+
     name: upload assets for ${{ matrix.platform.release_for }}
     runs-on: ${{ matrix.platform.os }}
     permissions:
