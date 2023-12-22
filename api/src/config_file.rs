@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs;
 use std::io;
 use std::io::Read;
@@ -9,7 +9,7 @@ use std::net::IpAddr;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Printers {
     #[serde(flatten)]
-    pub printers: HashMap<String, PrinterConfig>,
+    pub printers: BTreeMap<String, PrinterConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -17,7 +17,11 @@ pub struct PrinterConfig {
     pub ip: IpAddr,
 }
 
-// Read the config file and return a Printers struct and create the file if it doesn't exist
+/// Reads the configuration file and returns a `Printers` struct.
+/// If the file does not exist, it will be created with an empty map of printers.
+///
+/// # Errors
+/// Returns an error if there is a problem reading or writing to the file.
 pub fn read_config_file() -> Result<Printers, io::Error> {
     let mut file = fs::OpenOptions::new()
         .create(true)
@@ -32,7 +36,7 @@ pub fn read_config_file() -> Result<Printers, io::Error> {
             .expect("Config: error reading file");
         if data.is_empty() {
             let printers = Printers {
-                printers: HashMap::new(),
+                printers: BTreeMap::new(),
             };
             let data = serde_json::to_string(&printers).unwrap();
             let _ = file.write(data.as_bytes());
@@ -44,7 +48,15 @@ pub fn read_config_file() -> Result<Printers, io::Error> {
     Ok(printers)
 }
 
-// Append the config file with a new printer
+/// Appends a new printer configuration to the config file.
+///
+/// # Arguments
+/// * `name` - The name of the printer to add.
+/// * `printer` - The printer configuration to add.
+///
+/// # Returns
+/// A result containing an optional value, representing whether the operation was successful or not.
+/// If the operation was successful, the optional value is None. Otherwise, it contains a string describing the error that occurred.
 pub fn append_config_file(name: String, printer: PrinterConfig) -> Result<(), io::Error> {
     let mut printers: Printers = read_config_file().unwrap();
     let mut file = fs::OpenOptions::new()
@@ -59,7 +71,14 @@ pub fn append_config_file(name: String, printer: PrinterConfig) -> Result<(), io
     Ok(())
 }
 
-// Remove a printer from the config file
+/// Removes a printer configuration from the config file.
+///
+/// # Arguments
+/// * `printer` - The name of the printer to remove.
+///
+/// # Returns
+/// A result containing an optional value, representing whether the operation was successful or not.
+/// If the operation was successful, the optional value is None. Otherwise, it contains a string describing the error that occurred.
 pub fn remove_printer_from_config(printer: String) -> Result<(), io::Error> {
     let mut printers: Printers = read_config_file().unwrap();
     let mut file = fs::OpenOptions::new()
@@ -79,7 +98,7 @@ fn test_interaction_with_config_file() {
     // Test that the config file is created if it doesn't exist
     let printers = read_config_file().unwrap();
     // Test that the config file is empty
-    assert_eq!(printers.printers, HashMap::new());
+    assert_eq!(printers.printers, BTreeMap::new());
     // Test that the config file is appended with a correct printer info
     append_config_file(
         "printer1".to_string(),
@@ -91,7 +110,7 @@ fn test_interaction_with_config_file() {
     let printers = read_config_file().unwrap();
     assert_eq!(
         printers.printers,
-        HashMap::from_iter(vec![(
+        BTreeMap::from_iter(vec![(
             "printer1".to_string(),
             PrinterConfig {
                 ip: "127.0.0.1".parse().unwrap(),
@@ -108,7 +127,7 @@ fn test_interaction_with_config_file() {
     let printers = read_config_file().unwrap();
     assert_eq!(
         printers.printers,
-        HashMap::from_iter(vec![
+        BTreeMap::from_iter(vec![
             (
                 "printer1".to_string(),
                 PrinterConfig {
@@ -128,7 +147,7 @@ fn test_interaction_with_config_file() {
     let printers = read_config_file().unwrap();
     assert_eq!(
         printers.printers,
-        HashMap::from_iter(vec![(
+        BTreeMap::from_iter(vec![(
             "printer2".to_string(),
             PrinterConfig {
                 ip: "127.0.0.3".parse().unwrap(),

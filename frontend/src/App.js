@@ -33,6 +33,7 @@ export const App = () => {
     const {lastJsonMessage} = useMyWebSocket();
     useEffect(() => {
         if (lastJsonMessage !== null && Array.isArray(lastJsonMessage)) {
+            console.log(lastJsonMessage);
             setPrinters(lastJsonMessage)
         }
     }, [lastJsonMessage, setPrinters])

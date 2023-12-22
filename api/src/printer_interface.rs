@@ -1,16 +1,19 @@
+use crate::parse_printer_state::PrinterState;
 use std::collections::HashMap;
 use std::net::{IpAddr, UdpSocket};
 use std::str;
+use std::str::FromStr;
 use std::time::Duration;
 
-// Gcode | parameters      | return value                             | description
-// ----- | --------------- | ---------------------------------------- | -----------
-// M20:  |                 | ["Begin file list","*", "End file list"] | get file list
-// M24:  |                 |                                          | resume
-// M25:  |                 |                                          | pause
-// M27:  |                 | "SD printing byte 0/58349339\r\n"        | get print status
-// M33:  |                 |                                          | stop
-// M6030 | {file_to_print} |                                          | start selected file
+// Gcode | parameters      | return value                                         | description
+// ----- | --------------- | ---------------------------------------------------- | -----------
+// M20   |                 | ["Begin file list","*", "End file list"]             | get file list
+// M24   |                 |                                                      | resume
+// M25   |                 |                                                      | pause
+// M27   |                 | "SD printing byte 0/58349339\r\n"                    | get print status
+// M33   |                 |                                                      | stop
+// M4000 |                 | "ok B:0/0 X:0.000 Y:0.000 Z:-45.796 F:256/0 D:0/0/1" | get printer status
+// M6030 | {file_to_print} |                                                      | start selected file
 
 pub fn send_gcode(gcode: String, ip_addr: IpAddr) -> Vec<String> {
     let mut output = Vec::new();
@@ -49,17 +52,25 @@ pub fn send_gcode(gcode: String, ip_addr: IpAddr) -> Vec<String> {
     output
 }
 
-pub fn get_print_status(ip_addr: IpAddr) -> String {
-    let mut output = send_gcode("M27 ".to_string(), ip_addr);
-    if !output.is_empty() {
-        return if output[0].starts_with("SD printing byte ") {
-            output[0] = output[0].replace("SD printing byte ", "");
-            output[0].clone()
-        } else {
-            output[0].clone()
-        };
+pub fn get_print_status(ip_addr: IpAddr) -> Result<PrinterState, String> {
+    // ok B:0/0 X:0.000 Y:0.000 Z:-45.796 F:256/0 D:0/0/1
+    // Breakdown:
+    // B: Heated Bed current temp / target temp
+    // E1: Hot End 1 current temp / target temp
+    // E2: Hot End 2 current temp / target temp
+    // X: X-Axis position (mm)
+    // Y: Y-Axis position (mm)
+    // Z: Z-Axis position (mm)
+    // F: Hot End 1 fan PWM / Hot End 2 fan PWM (max 256)
+    // D: Current file position / Total file size / File paused
+    //     File Paused
+    //         0: False
+    //         1: True
+    let output = send_gcode("M4000".to_string(), ip_addr);
+    if output.is_empty() {
+        return Err("Unable to connect".to_string());
     }
-    "".to_string()
+    Ok(PrinterState::from_str(&output[0]).unwrap())
 }
 
 pub fn get_printer_files(ip_addr: IpAddr) -> Vec<String> {

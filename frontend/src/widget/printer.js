@@ -18,8 +18,8 @@ function PrinterWidget(props) {
             <p><strong>IP Address:</strong> {props.ip_address}</p>
             <div>
                 <button style={{margin: "0 .5em"}} onClick={() =>
-                    sendJsonMessage({action: "pause", ip_address: props.ip_address})}>Pause
-                    Printer
+                    sendJsonMessage({action: (props.paused ? "resume" : "pause"), ip_address: props.ip_address})}>
+                    {props.paused ? "Resume Printer" : "Pause Printer"}
                 </button>
                 <button style={{margin: "0 .5em"}} onClick={() =>
                     sendJsonMessage({action: "stop", ip_address: props.ip_address})}>Stop Printer
