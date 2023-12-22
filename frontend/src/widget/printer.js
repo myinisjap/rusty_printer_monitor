@@ -1,7 +1,7 @@
 import ProgressBar from "./progress_bar"
 import {useState} from "react";
 import {useMyWebSocket} from "../App";
-
+import { isWindows } from "react-device-detect"
 
 function PrinterWidget(props) {
     const {sendJsonMessage} = useMyWebSocket();
@@ -9,6 +9,8 @@ function PrinterWidget(props) {
     const handleChange = (e) => {
         setFileDropDown(e.target.value);
     }
+    let fileWindowSubtract = isWindows ? "13em" : "11em";
+
     return (
         <div className={"printer_widget"}>
             <h1 style={{display: "inline"}} title={props.printer_name}>{props.printer_name}</h1>
@@ -25,7 +27,7 @@ function PrinterWidget(props) {
                     sendJsonMessage({action: "stop", ip_address: props.ip_address})}>Stop Printer
                 </button>
             </div>
-            <div style={{inset: ".5em", width: "100%", height: "calc(100% - 11em"}}>
+            <div style={{inset: ".5em", width: "100%", height: `calc(100% - ${fileWindowSubtract}`}}>
                 <h3>Files available on Printer</h3>
                 <select size={10} style={{width: "100%", height: "calc(100% - 4em)", overflow: "scroll",}}
                         onChange={handleChange}>

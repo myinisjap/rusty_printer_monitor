@@ -1,5 +1,8 @@
 on:
-  push
+  push:
+    paths-ignore:
+      - '*.md'
+      - '.github/**'
 
 jobs:
   test_build_rust:
