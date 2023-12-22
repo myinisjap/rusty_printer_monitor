@@ -1,4 +1,4 @@
 /api/target
-/api/config.txt
+/frontend/build/config.txt
 /frontend/build/
 /frontend/node_modules/

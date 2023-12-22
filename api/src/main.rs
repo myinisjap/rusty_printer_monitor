@@ -3,6 +3,7 @@ use salvo::serve_static::StaticDir;
 
 mod config_file;
 mod page_interface;
+mod parse_printer_state;
 mod printer_interface;
 mod socket;
 
