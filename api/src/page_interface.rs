@@ -58,7 +58,7 @@ async fn get_all_printer_json() -> String {
                 progress: if s.d.max_file_position != 0 {
                     format!(
                         "{:.2}",
-                        (s.d.current_file_position / s.d.max_file_position) * 100
+                        (s.d.current_file_position as f64 / s.d.max_file_position as f64) * 100.0
                     )
                 } else {
                     "Not Printing".to_string()
